@@ -116,6 +116,8 @@ function create() {
     turnCW = game.input.keyboard.addKey(Phaser.Keyboard.E);
     turnCCW = game.input.keyboard.addKey(Phaser.Keyboard.Q);
     startKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+    
+    //game.input.mouse.capture = true;
 }
 
 function update() {
@@ -153,62 +155,64 @@ function update() {
                 onGround = false;
         }
 
-        if (cursors.left.isDown && (g_dir == 'down' || g_dir == 'up') && onGround)
-        {
-            player.body.velocity.x = -150;
-        }
-        else if (cursors.right.isDown && (g_dir == 'down' || g_dir == 'up') && onGround)
-        {
-            player.body.velocity.x = 150;
-        }
-        else if(cursors.up.isDown && (g_dir == 'left' || g_dir == 'right') && onGround)
-        {
-            player.body.velocity.y = -150;
-        }
-        else if(cursors.down.isDown && (g_dir == 'left' || g_dir == 'right') && onGround)
-        {
-            player.body.velocity.y = 150;
-        }
+//        if (cursors.left.isDown && (g_dir == 'down' || g_dir == 'up') && onGround)
+//        {
+//            player.body.velocity.x = -150;
+//        }
+//        else if (cursors.right.isDown && (g_dir == 'down' || g_dir == 'up') && onGround)
+//        {
+//            player.body.velocity.x = 150;
+//        }
+//        else if(cursors.up.isDown && (g_dir == 'left' || g_dir == 'right') && onGround)
+//        {
+//            player.body.velocity.y = -150;
+//        }
+//        else if(cursors.down.isDown && (g_dir == 'left' || g_dir == 'right') && onGround)
+//        {
+//            player.body.velocity.y = 150;
+//        }
     
         if(upGrav.isDown && onGround)
         {
             game.physics.arcade.gravity.x = 0;
-            game.physics.arcade.gravity.y = -250;
+            game.physics.arcade.gravity.y = -400;
             g_dir = 'up';
         }
     
         else if(downGrav.isDown && onGround)
         {
             game.physics.arcade.gravity.x = 0;
-            game.physics.arcade.gravity.y = 250;
+            game.physics.arcade.gravity.y = 400;
             g_dir = 'down';
         }
     
         else if(leftGrav.isDown && onGround)
         {
-            game.physics.arcade.gravity.x = -250;
+            game.physics.arcade.gravity.x = -400;
             game.physics.arcade.gravity.y = 0;
             g_dir = 'left';
         }
     
         else if(rightGrav.isDown && onGround)
         {
-            game.physics.arcade.gravity.x = 250;
+            game.physics.arcade.gravity.x = 400;
             game.physics.arcade.gravity.y = 0;
             g_dir = 'right';
         }
+        
+        cannon.rotation = game.physics.arcade.angleToPointer(cannon);
+        
+//        if(turnCW.isDown)
+//        {
+//            cannon.angle += 2.5;
+//        }
+//    
+//        else if(turnCCW.isDown)
+//        {
+//            cannon.angle -= 2.5;
+//        }
     
-        if(turnCW.isDown)
-        {
-            cannon.angle += 2.5;
-        }
-    
-        else if(turnCCW.isDown)
-        {
-            cannon.angle -= 2.5;
-        }
-    
-        if(shootButton.isDown && game.time.now > bulletTimer)
+        if(game.input.activePointer.isDown && game.time.now > bulletTimer)
         {
             shoot();
             bulletTimer = game.time.now + 500;
@@ -237,7 +241,7 @@ function update() {
         {
             enemyTimer = game.time.now + 1000;   
             playerHealth = 3;
-            game.physics.arcade.gravity.y = 250;
+            game.physics.arcade.gravity.y = 400;
             game.physics.arcade.gravity.x = 0;
             player.reset(32, 96);
             cannon.reset(32, 96);
