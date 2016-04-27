@@ -48,18 +48,19 @@ var enemy2;//ground turret//
 var enemy3;//ground turret//
 var enemyTimer = 0;//timer for enemy attacks//
 var enemyBullets;
-var playerHealth = 3;
+var playerHealth = 50;
 var shootSFX;
 var hitSFX;
 var music;
+var damageArr = [5, 10, 15];
+var weaponType = 3;//0 = normal, 1 = spread, 2 = machinegun, 3 = grenade//
+var bulletCD = 500;
 
 function create() {
 
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
     game.stage.backgroundColor = '#555555';
-
-    game.physics.arcade.gravity.y = 250;
     
     map = game.add.tilemap('Tilemap');
     map.addTilesetImage('Blocks');
@@ -116,6 +117,8 @@ function create() {
     turnCW = game.input.keyboard.addKey(Phaser.Keyboard.E);
     turnCCW = game.input.keyboard.addKey(Phaser.Keyboard.Q);
     startKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+    
+    //game.input.mouse.capture = true;
 }
 
 function update() {
@@ -126,6 +129,12 @@ function update() {
     cannon.body.y = player.body.y;
     
     healthText.text = "Health: " + playerHealth;
+    
+    if(weaponType == 2)
+        bulletCD = 75;
+    
+    else
+        bulletCD = 500;
     
     if(isRunning && player.alive)
     {
@@ -153,65 +162,59 @@ function update() {
                 onGround = false;
         }
 
-        if (cursors.left.isDown && (g_dir == 'down' || g_dir == 'up') && onGround)
-        {
-            player.body.velocity.x = -150;
-        }
-        else if (cursors.right.isDown && (g_dir == 'down' || g_dir == 'up') && onGround)
-        {
-            player.body.velocity.x = 150;
-        }
-        else if(cursors.up.isDown && (g_dir == 'left' || g_dir == 'right') && onGround)
-        {
-            player.body.velocity.y = -150;
-        }
-        else if(cursors.down.isDown && (g_dir == 'left' || g_dir == 'right') && onGround)
-        {
-            player.body.velocity.y = 150;
-        }
     
         if(upGrav.isDown && onGround)
         {
-            game.physics.arcade.gravity.x = 0;
-            game.physics.arcade.gravity.y = -250;
+            //game.physics.arcade.gravity.x = 0;
+            //game.physics.arcade.gravity.y = -400;
+            player.body.gravity.x = 0;
+            player.body.gravity.y = -400;
             g_dir = 'up';
         }
     
         else if(downGrav.isDown && onGround)
         {
-            game.physics.arcade.gravity.x = 0;
-            game.physics.arcade.gravity.y = 250;
+            //game.physics.arcade.gravity.x = 0;
+            //game.physics.arcade.gravity.y = 400;
+            player.body.gravity.x = 0;
+            player.body.gravity.y = 400;
             g_dir = 'down';
         }
     
         else if(leftGrav.isDown && onGround)
         {
-            game.physics.arcade.gravity.x = -250;
-            game.physics.arcade.gravity.y = 0;
+            //game.physics.arcade.gravity.x = -400;
+            //game.physics.arcade.gravity.y = 0;
+            player.body.gravity.x = -400;
+            player.body.gravity.y = 0;
             g_dir = 'left';
         }
     
         else if(rightGrav.isDown && onGround)
         {
-            game.physics.arcade.gravity.x = 250;
-            game.physics.arcade.gravity.y = 0;
+            //game.physics.arcade.gravity.x = 400;
+            //game.physics.arcade.gravity.y = 0;
+            player.body.gravity.x = 400;
+            player.body.gravity.y = 0;
             g_dir = 'right';
         }
+        
+        cannon.rotation = game.physics.arcade.angleToPointer(cannon);
+        
+//        if(turnCW.isDown)
+//        {
+//            cannon.angle += 2.5;
+//        }
+//    
+//        else if(turnCCW.isDown)
+//        {
+//            cannon.angle -= 2.5;
+//        }
     
-        if(turnCW.isDown)
-        {
-            cannon.angle += 2.5;
-        }
-    
-        else if(turnCCW.isDown)
-        {
-            cannon.angle -= 2.5;
-        }
-    
-        if(shootButton.isDown && game.time.now > bulletTimer)
+        if(game.input.activePointer.isDown && game.time.now > bulletTimer)
         {
             shoot();
-            bulletTimer = game.time.now + 500;
+            bulletTimer = game.time.now + bulletCD;
         }
         
         if(game.time.now >= enemyTimer && (enemy1.alive || enemy2.alive || enemy3.alive))
@@ -236,9 +239,7 @@ function update() {
         if(!isRunning)
         {
             enemyTimer = game.time.now + 1000;   
-            playerHealth = 3;
-            game.physics.arcade.gravity.y = 250;
-            game.physics.arcade.gravity.x = 0;
+            playerHealth = 50;
             player.reset(32, 96);
             cannon.reset(32, 96);
             enemy1.reset(576, 320);
@@ -257,13 +258,69 @@ function update() {
         
 function shoot()
 {
-    var bullet = bullets.create(player.body.x + 16, player.body.y + 16, 'bullet');
-    game.physics.enable(bullet, Phaser.Physics.ARCADE);
-    bullet.body.setSize(8, 8, 0, 0);
-    bullet.anchor.setTo(.5, .5)
-    bullet.rotation = cannon.rotation;
-    bullet.body.allowGravity = false;
-    game.physics.arcade.velocityFromRotation(cannon.rotation, 400, bullet.body.velocity);
+    if(weaponType == 0)
+    {
+        var bullet = bullets.create(player.body.x + 16, player.body.y + 16, 'bullet');
+        game.physics.enable(bullet, Phaser.Physics.ARCADE);
+        bullet.body.setSize(8, 8, 0, 0);
+        bullet.anchor.setTo(.5, .5)
+        bullet.rotation = cannon.rotation;
+        bullet.body.allowGravity = false;
+        game.physics.arcade.velocityFromRotation(cannon.rotation, 400, bullet.body.velocity);
+    }
+    
+    else if(weaponType == 1)
+    {
+        var bullet1 = bullets.create(player.body.x + 16, player.body.y + 16, 'bullet');
+        game.physics.enable(bullet1, Phaser.Physics.ARCADE);
+        bullet1.body.setSize(8, 8, 0, 0);
+        bullet1.anchor.setTo(.5, .5)
+        bullet1.rotation = cannon.rotation;
+        bullet1.body.allowGravity = false;
+        game.physics.arcade.velocityFromRotation(cannon.rotation, 400, bullet1.body.velocity);
+        
+        var bullet2 = bullets.create(player.body.x + 16, player.body.y + 16, 'bullet');
+        game.physics.enable(bullet2, Phaser.Physics.ARCADE);
+        bullet2.body.setSize(8, 8, 0, 0);
+        bullet2.anchor.setTo(.5, .5)
+        bullet2.rotation = cannon.rotation;
+        bullet2.body.allowGravity = false;
+        game.physics.arcade.velocityFromRotation(cannon.rotation + 0.2, 400, bullet2.body.velocity);
+        
+        var bullet3 = bullets.create(player.body.x + 16, player.body.y + 16, 'bullet');
+        game.physics.enable(bullet3, Phaser.Physics.ARCADE);
+        bullet3.body.setSize(8, 8, 0, 0);
+        bullet3.anchor.setTo(.5, .5)
+        bullet3.rotation = cannon.rotation;
+        bullet3.body.allowGravity = false;
+        game.physics.arcade.velocityFromRotation(cannon.rotation - 0.2, 400, bullet3.body.velocity);
+    }
+    
+    else if(weaponType == 2)
+    {
+        var bullet = bullets.create(player.body.x + 16, player.body.y + 16, 'bullet');
+        game.physics.enable(bullet, Phaser.Physics.ARCADE);
+        bullet.body.setSize(8, 8, 0, 0);
+        bullet.anchor.setTo(.5, .5)
+        bullet.rotation = cannon.rotation;
+        bullet.body.allowGravity = false;
+        var spread = Math.random() * 0.2;
+        var negative = Math.random() * 2;
+        if(negative >= 1)
+            spread *= -1;
+        game.physics.arcade.velocityFromRotation(cannon.rotation + spread, 400, bullet.body.velocity);
+    }
+    
+    else if(weaponType = 3)
+    {
+        var bullet = bullets.create(player.body.x + 16, player.body.y + 16, 'bullet');
+        game.physics.enable(bullet, Phaser.Physics.ARCADE);
+        bullet.body.setSize(8, 8, 0, 0);
+        bullet.anchor.setTo(.5, .5)
+        bullet.rotation = cannon.rotation;
+        bullet.body.gravity.y = 300;
+        game.physics.arcade.velocityFromRotation(cannon.rotation, 250, bullet.body.velocity);
+    }
     shootSFX.play();
 }
         
@@ -277,6 +334,7 @@ function enemyShoot()
     if(enemy1.alive)
     {
         var bullet = enemyBullets.create(enemy1.body.x + 16, enemy1.body.y + 16, 'bullet');
+        bullet.name = 'bullet1';
         game.physics.enable(bullet, Phaser.Physics.ARCADE);
         bullet.body.setSize(8, 8, 0, 0);
         bullet.anchor.setTo(.5, .5);
@@ -287,6 +345,7 @@ function enemyShoot()
     if(enemy2.alive)
     {
         var bullet = enemyBullets.create(enemy2.body.x + 16, enemy2.body.y + 16, 'bullet');
+        bullet.name = 'bullet2';
         game.physics.enable(bullet, Phaser.Physics.ARCADE);
         bullet.body.setSize(8, 8, 0, 0);
         bullet.anchor.setTo(.5, .5);
@@ -297,6 +356,7 @@ function enemyShoot()
     if(enemy3.alive)
     {
         var bullet = enemyBullets.create(enemy3.body.x + 16, enemy3.body.y + 16, 'bullet');
+        bullet.name = 'bullet3';
         game.physics.enable(bullet, Phaser.Physics.ARCADE);
         bullet.body.setSize(8, 8, 0, 0);
         bullet.anchor.setTo(.5, .5);
@@ -312,7 +372,16 @@ function playerHit(player, bullet)
     hitSFX.play();
     bullet.kill();
     if(playerHealth > 0)
-        playerHealth--;
+    {
+        if(bullet.name == 'bullet1')
+            playerHealth -= damageArr[0];
+        
+        else if(bullet.name == 'bullet2')
+            playerHealth -= damageArr[1];
+        
+        else if(bullet.name == 'bullet3')
+            playerHealth -= damageArr[2];
+    }
 }
         
 function enemyHit(bullet, enemy)
