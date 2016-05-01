@@ -25,7 +25,6 @@ var player;
 var cannon;
 var facing = 'left';
 var cursors;
-var shootButton;
 var bg;
 var g_dir = 'down';
 var layer;
@@ -54,9 +53,15 @@ var shootSFX;
 var hitSFX;
 var music;
 var damageArr = [5, 10, 15];
-var weaponType = 3;//0 = normal, 1 = spread, 2 = machinegun, 3 = grenade//
+var weaponType = 0;//0 = normal, 1 = spread, 2 = machinegun, 3 = grenade//
 var bulletCD = 500;
 var playerBombs;
+var weaponSwitch;
+var weaponText;
+var weaponCD = 200;
+var switchWeapon = function(){weaponType += 1;
+                              if(weaponType > 3)
+                                 weaponType = 0;};
 
 function create() {
 
@@ -110,18 +115,15 @@ function create() {
     
     stateText = game.add.text(200, 200, "Press Enter to play!", {font: '34px Arial', fill: '#000'});
     healthText = game.add.text(32, 32, "Health: " + playerHealth, {font: '34px Arial', fill: '#000'});
+    weaponText = game.add.text(220, 32, "Weapon: Normal", {font: '34px Arial', fill: '#000'});
 
     cursors = game.input.keyboard.createCursorKeys();
-    shootButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    weaponSwitch = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     upGrav = game.input.keyboard.addKey(Phaser.Keyboard.W);
     downGrav = game.input.keyboard.addKey(Phaser.Keyboard.S);
     leftGrav = game.input.keyboard.addKey(Phaser.Keyboard.A);
     rightGrav = game.input.keyboard.addKey(Phaser.Keyboard.D);
-    turnCW = game.input.keyboard.addKey(Phaser.Keyboard.E);
-    turnCCW = game.input.keyboard.addKey(Phaser.Keyboard.Q);
     startKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
-    
-    //game.input.mouse.capture = true;
 }
 
 function update() {
@@ -133,11 +135,29 @@ function update() {
     
     healthText.text = "Health: " + playerHealth;
     
-    if(weaponType == 2)
+    if(weaponType == 1)
+    {    
+        bulletCD = 750;
+        weaponText.text = "Weapon: Spread";
+    }
+    
+    else if(weaponType == 2)
+    {
         bulletCD = 75;
+        weaponText.text = "Weapon: Machine Gun";
+    }
+    
+    else if(weaponType == 3)
+    {
+        bulletCD = 1000;
+        weaponText.text = "Weapon: Grenade";
+    }
     
     else
+    {
         bulletCD = 500;
+        weaponText.text = "Weapon: Normal";
+    }
     
     if(isRunning && player.alive)
     {
@@ -168,8 +188,6 @@ function update() {
     
         if(upGrav.isDown && onGround)
         {
-            //game.physics.arcade.gravity.x = 0;
-            //game.physics.arcade.gravity.y = -400;
             player.body.gravity.x = 0;
             player.body.gravity.y = -400;
             g_dir = 'up';
@@ -177,8 +195,6 @@ function update() {
     
         else if(downGrav.isDown && onGround)
         {
-            //game.physics.arcade.gravity.x = 0;
-            //game.physics.arcade.gravity.y = 400;
             player.body.gravity.x = 0;
             player.body.gravity.y = 400;
             g_dir = 'down';
@@ -186,8 +202,6 @@ function update() {
     
         else if(leftGrav.isDown && onGround)
         {
-            //game.physics.arcade.gravity.x = -400;
-            //game.physics.arcade.gravity.y = 0;
             player.body.gravity.x = -400;
             player.body.gravity.y = 0;
             g_dir = 'left';
@@ -195,24 +209,12 @@ function update() {
     
         else if(rightGrav.isDown && onGround)
         {
-            //game.physics.arcade.gravity.x = 400;
-            //game.physics.arcade.gravity.y = 0;
             player.body.gravity.x = 400;
             player.body.gravity.y = 0;
             g_dir = 'right';
         }
         
         cannon.rotation = game.physics.arcade.angleToPointer(cannon);
-        
-//        if(turnCW.isDown)
-//        {
-//            cannon.angle += 2.5;
-//        }
-//    
-//        else if(turnCCW.isDown)
-//        {
-//            cannon.angle -= 2.5;
-//        }
     
         if(game.input.activePointer.isDown && game.time.now > bulletTimer)
         {
@@ -225,6 +227,8 @@ function update() {
             enemies.forEach(enemyShoot);
             enemyTimer = game.time.now + 2500;
         }
+        
+        weaponSwitch.onDown.add(switchWeapon, this);
         
     }
     
@@ -283,6 +287,7 @@ function shoot()
         bullet1.rotation = cannon.rotation;
         bullet1.body.allowGravity = false;
         bullet1.name = 'spread';
+        bullet1.lifespan = 500;
         game.physics.arcade.velocityFromRotation(cannon.rotation, 400, bullet1.body.velocity);
         
         var bullet2 = bullets.create(player.body.x + 16, player.body.y + 16, 'bullet');
@@ -292,6 +297,7 @@ function shoot()
         bullet2.rotation = cannon.rotation;
         bullet2.body.allowGravity = false;
         bullet2.name = 'spread';
+        bullet2.lifespan = 500;
         game.physics.arcade.velocityFromRotation(cannon.rotation + 0.2, 400, bullet2.body.velocity);
         
         var bullet3 = bullets.create(player.body.x + 16, player.body.y + 16, 'bullet');
@@ -301,6 +307,7 @@ function shoot()
         bullet3.rotation = cannon.rotation;
         bullet3.body.allowGravity = false;
         bullet3.name = 'spread';
+        bullet3.lifespan = 500;
         game.physics.arcade.velocityFromRotation(cannon.rotation - 0.2, 400, bullet3.body.velocity);
     }
     
@@ -313,10 +320,11 @@ function shoot()
         bullet.rotation = cannon.rotation;
         bullet.body.allowGravity = false;
         bullet.name = 'rapid';
-        var spread = Math.random() * 0.2;
+        var spread = Math.random() * 0.3;
         var negative = Math.random() * 2;
         if(negative >= 1)
             spread *= -1;
+        bullet.lifespan = 900;
         game.physics.arcade.velocityFromRotation(cannon.rotation + spread, 400, bullet.body.velocity);
     }
     
@@ -344,6 +352,7 @@ function wallCollision(bullet, layer)
         explosion.body.setSize(64, 64);
         explosion.anchor.setTo(.5, .5);
         explosion.body.allowGravity = false;
+        hitSFX.play();
         bullet.kill();
     }
 
