@@ -12,13 +12,34 @@ function preload() {
     game.load.image('cannon', 'assets/cannon.png');//tank cannon//
     game.load.image('bullet', 'assets/bullet.png');//bullet sprite//
     game.load.tilemap('Tilemap', 'assets/Tile Layer 1.json', null, Phaser.Tilemap.TILED_JSON);
-    game.load.image('Blocks', 'assets/block.png');//block used for Tilemap//
-    game.load.image('turretW', 'assets/wallTurret.png');//enemy turret on wall//
-    game.load.image('turretF', 'assets/groundTurret.png');//enemy turret on ground//
+    game.load.tilemap('level1', 'assets/JSON/level1.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.tilemap('level2', 'assets/JSON/level2.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.tilemap('level3', 'assets/JSON/level3.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.tilemap('level4', 'assets/JSON/level4.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.image('block', 'assets/block.png');//block used for Tilemap//
+    game.load.image('turretRight', 'assets/wallTurret.png');//enemy turret on wall//
+    game.load.image('turretGround', 'assets/groundTurret.png');//enemy turret on ground//
+    game.load.image('turretLeft', 'assets/PNG/leftWallTurret.png');
+    game.load.image('turretCeiling', 'assets/PNG/ceilingTurret.png');
     game.load.image('splosion', 'assets/splosionTest.png');//
     game.load.audio('shot', 'assets/9_mm_gunshot-mike-koenig-123.mp3');
     game.load.audio('hit', 'assets/Bomb 2-SoundBible.com-953367492.mp3');
     game.load.audio('music', 'assets/Voice Over Under.mp3');
+    
+    game.load.image('tankDown', 'assets/PNG/tankDown.png');
+    game.load.image('tankUp', 'assets/PNG/tankUp.png');
+    game.load.image('tankLeft', 'assets/PNG/tankLeft.png');
+    game.load.image('tankRight', 'assets/PNG/tankRight.png');
+    game.load.image('spread', 'assets/PNG/spreadShot.png');
+    game.load.image('mgun', 'assets/PNG/machineGun.png');
+    game.load.image('launcher', 'assets/PNG/grenadeLauncher.png');
+    
+    game.load.image('drone', 'assets/PNG/drone.png');
+    game.load.image('shieldDrone', 'assets/PNG/sheildedDrone.png');
+    game.load.image('sheildTurretR', 'assets/PNG/shieldedWallTurret.png');
+    game.load.image('sheildTurretL', 'assets/PNG/shieldedLeftWallTurret.png');
+    game.load.image('sheildTurretG', 'assets/PNG/shieldedGroundTurret.png');
+    game.load.image('sheildTurretC', 'assets/PNG/shieldedCeilingTurret.png');
 }
 
 var player;
@@ -56,6 +77,7 @@ var damageArr = [5, 10, 15];
 var weaponType = 0;//0 = normal, 1 = spread, 2 = machinegun, 3 = grenade//
 var bulletCD = 500;
 var playerBombs;
+var currentLevel;
 var weaponSwitch;
 var weaponText;
 var weaponCD = 200;
@@ -69,14 +91,14 @@ function create() {
 
     game.stage.backgroundColor = '#555555';
     
-    map = game.add.tilemap('Tilemap');
-    map.addTilesetImage('Blocks');
+    map = game.add.tilemap('level1');
+    map.addTilesetImage('block');
     map.setCollision(1);
     
     layer = map.createLayer('Tile Layer 1');
     layer.resizeWorld();
 
-    player = game.add.sprite(32, 96, 'base');
+    player = game.add.sprite(32, 96, 'tankDown');
     game.physics.enable(player, Phaser.Physics.ARCADE);
     
     cannon = game.add.sprite(32, 96, 'cannon');
@@ -95,17 +117,20 @@ function create() {
     enemies = game.add.group();
     playerBombs = game.add.group();
     
-    enemy1 = enemies.create(576, 320, 'turretW');
+    enemy1 = enemies.create(576, 320, 'turretRight');
     game.physics.enable(enemy1, Phaser.Physics.ARCADE);
     enemy1.body.allowGravity = false;
+    enemy1.name = "Sentry";
     
-    enemy2 = enemies.create(352, 320, 'turretF');
+    enemy2 = enemies.create(352, 320, 'turretGround');
     game.physics.enable(enemy2, Phaser.Physics.ARCADE);
     enemy2.body.allowGravity = false;
+    enemy2.name = "Sentry";
     
-    enemy3 = enemies.create(64, 512, 'turretF');
+    enemy3 = enemies.create(64, 512, 'turretGround');
     game.physics.enable(enemy3, Phaser.Physics.ARCADE);
     enemy3.body.allowGravity = false;
+    enemy3.name = "Sentry";
     
     shootSFX = game.add.audio('shot');
     hitSFX = game.add.audio('hit');
@@ -139,24 +164,28 @@ function update() {
     {    
         bulletCD = 750;
         weaponText.text = "Weapon: Spread";
+        cannon.loadTexture('spread');
     }
     
     else if(weaponType == 2)
     {
         bulletCD = 75;
         weaponText.text = "Weapon: Machine Gun";
+        cannon.loadTexture('mgun');
     }
     
     else if(weaponType == 3)
     {
         bulletCD = 1000;
         weaponText.text = "Weapon: Grenade";
+        cannon.loadTexture('launcher');
     }
     
     else
     {
         bulletCD = 500;
         weaponText.text = "Weapon: Normal";
+        cannon.loadTexture('cannon');
     }
     
     if(isRunning && player.alive)
@@ -185,12 +214,14 @@ function update() {
                 onGround = false;
         }
 
-    
+        
+        //change gravity//
         if(upGrav.isDown && onGround)
         {
             player.body.gravity.x = 0;
             player.body.gravity.y = -400;
             g_dir = 'up';
+            player.loadTexture('tankUp');
         }
     
         else if(downGrav.isDown && onGround)
@@ -198,6 +229,7 @@ function update() {
             player.body.gravity.x = 0;
             player.body.gravity.y = 400;
             g_dir = 'down';
+            player.loadTexture('tankDown');
         }
     
         else if(leftGrav.isDown && onGround)
@@ -205,6 +237,7 @@ function update() {
             player.body.gravity.x = -400;
             player.body.gravity.y = 0;
             g_dir = 'left';
+            player.loadTexture('tankLeft');
         }
     
         else if(rightGrav.isDown && onGround)
@@ -212,6 +245,7 @@ function update() {
             player.body.gravity.x = 400;
             player.body.gravity.y = 0;
             g_dir = 'right';
+            player.loadTexture('tankRight');
         }
         
         cannon.rotation = game.physics.arcade.angleToPointer(cannon);
@@ -222,7 +256,7 @@ function update() {
             bulletTimer = game.time.now + bulletCD;
         }
         
-        if(game.time.now >= enemyTimer)
+        if(game.time.now >= enemyTimer)//enemy action//
         {
             enemies.forEach(enemyShoot);
             enemyTimer = game.time.now + 2500;
@@ -232,7 +266,7 @@ function update() {
         
     }
     
-    if(playerHealth <= 0)
+    if(playerHealth <= 0)//player death//
     {
         isRunning = false;
         player.kill();
@@ -241,7 +275,7 @@ function update() {
         stateText.visible = true;
     }
     
-    if(startKey.isDown)
+    if(startKey.isDown)//start game//
     {
         if(!isRunning)
         {
@@ -251,7 +285,13 @@ function update() {
             cannon.reset(32, 96);
             enemy1.reset(576, 320);
             enemy2.reset(352, 320);
-            enemy3.reset(64, 512);
+            enemy3.reset(32, 512);
+            
+            //if(currentLevel == 0)
+            //{
+            //    level1Init();
+            //    currentLevel = 1;
+            //}
         }
         isRunning = true;
         stateText.visible = false;
@@ -364,9 +404,23 @@ function enemyShoot(enemy)
 {
     if(!enemy.alive)
         return;
+    
+    var los = new Phaser.Line();
+    los.start.set(enemy.body.x, enemy.body.y);
+    los.end.set(player.body.x, player.body.y);
+    
+    if(layer.getRayCastTiles(los, 32, true, false).length > 0)//check line of sight//
+    {
+        los = null;
+        return;
+    }
+    
+    los = null;
+    
     var bullet = enemyBullets.create(enemy.body.x + 16, enemy.body.y + 16, 'bullet');
-    bullet.name = 'bullet3';
     game.physics.enable(bullet, Phaser.Physics.ARCADE);
+    if(enemy.name == "Sentry")
+        bullet.name = "bullet1";
     bullet.body.setSize(8, 8, 0, 0);
     bullet.anchor.setTo(.5, .5);
     bullet.body.allowGravity = false;
@@ -409,6 +463,26 @@ function explosionHit(explosion, enemy)
 {
     hitSFX.play();
     enemy.kill();
+}
+        
+function level1Init()
+{
+    var levelEnemies = game.add.group;
+    enemies = levelEnemies;
+    enemy1 = levelEnemies.create(576, 320, 'turretRight');
+    game.physics.enable(enemy1, Phaser.Physics.ARCADE);
+    enemy1.body.allowGravity = false;
+    enemy1.name = "Sentry";
+    
+    enemy2 = levelEnemies.create(352, 320, 'turretGround');
+    game.physics.enable(enemy2, Phaser.Physics.ARCADE);
+    enemy2.body.allowGravity = false;
+    enemy2.name = "Sentry";
+    
+    enemy3 = levelEnemies.create(32, 512, 'turretLeft');
+    game.physics.enable(enemy3, Phaser.Physics.ARCADE);
+    enemy3.body.allowGravity = false;
+    enemy3.name = "Sentry";
 }
         
 function render() {}
