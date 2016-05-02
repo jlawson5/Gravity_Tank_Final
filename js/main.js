@@ -11,17 +11,19 @@ function preload() {
     game.load.image('base', 'assets/tank.png');//tank base//
     game.load.image('cannon', 'assets/cannon.png');//tank cannon//
     game.load.image('bullet', 'assets/bullet.png');//bullet sprite//
-    game.load.tilemap('Tilemap', 'assets/Tile Layer 1.json', null, Phaser.Tilemap.TILED_JSON);
-    game.load.tilemap('level1', 'assets/JSON/level1.json', null, Phaser.Tilemap.TILED_JSON);
-    game.load.tilemap('level2', 'assets/JSON/level2.json', null, Phaser.Tilemap.TILED_JSON);
-    game.load.tilemap('level3', 'assets/JSON/level3.json', null, Phaser.Tilemap.TILED_JSON);
-    game.load.tilemap('level4', 'assets/JSON/level4.json', null, Phaser.Tilemap.TILED_JSON);
+    //game.load.tilemap('Tilemap', 'assets/Tile Layer 1.json', null, Phaser.Tilemap.TILED_JSON);
+    //game.load.tilemap('level1', 'assets/JSON/level1.json', null, Phaser.Tilemap.TILED_JSON);
+    //game.load.tilemap('level2', 'assets/JSON/level2.json', null, Phaser.Tilemap.TILED_JSON);
+    //game.load.tilemap('level3', 'assets/JSON/level3.json', null, Phaser.Tilemap.TILED_JSON);
+    //game.load.tilemap('level4', 'assets/JSON/level4.json', null, Phaser.Tilemap.TILED_JSON);
+    //game.load.tilemap('levelTest', 'assets/JSON/levelTest.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.tilemap('level', 'assets/JSON/multiLevel.json', null, Phaser.Tilemap.TILED_JSON);
     game.load.image('block', 'assets/block.png');//block used for Tilemap//
     game.load.image('turretRight', 'assets/wallTurret.png');//enemy turret on wall//
     game.load.image('turretGround', 'assets/groundTurret.png');//enemy turret on ground//
     game.load.image('turretLeft', 'assets/PNG/leftWallTurret.png');
     game.load.image('turretCeiling', 'assets/PNG/ceilingTurret.png');
-    game.load.image('splosion', 'assets/splosionTest.png');//
+    game.load.image('splosion', 'assets/PNG/splosionTest.png');//
     game.load.audio('shot', 'assets/9_mm_gunshot-mike-koenig-123.mp3');
     game.load.audio('hit', 'assets/Bomb 2-SoundBible.com-953367492.mp3');
     game.load.audio('music', 'assets/Voice Over Under.mp3');
@@ -40,6 +42,8 @@ function preload() {
     game.load.image('sheildTurretL', 'assets/PNG/shieldedLeftWallTurret.png');
     game.load.image('sheildTurretG', 'assets/PNG/shieldedGroundTurret.png');
     game.load.image('sheildTurretC', 'assets/PNG/shieldedCeilingTurret.png');
+    game.load.image('mgunBullet', 'assets/PNG/machineGunBullet.png');
+    game.load.image('nade', 'assets/PNG/grenade.png');
 }
 
 var player;
@@ -91,12 +95,13 @@ function create() {
 
     game.stage.backgroundColor = '#555555';
     
-    map = game.add.tilemap('level1');
+    game.world.setBounds(0, 0, 3200, 640);
+    
+    map = game.add.tilemap('level');
     map.addTilesetImage('block');
     map.setCollision(1);
     
     layer = map.createLayer('Tile Layer 1');
-    layer.resizeWorld();
 
     player = game.add.sprite(32, 96, 'tankDown');
     game.physics.enable(player, Phaser.Physics.ARCADE);
@@ -149,6 +154,7 @@ function create() {
     leftGrav = game.input.keyboard.addKey(Phaser.Keyboard.A);
     rightGrav = game.input.keyboard.addKey(Phaser.Keyboard.D);
     startKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+    game.camera.follow(player);
 }
 
 function update() {
@@ -353,7 +359,7 @@ function shoot()
     
     else if(weaponType == 2)//Machine Gun//
     {
-        var bullet = bullets.create(player.body.x + 16, player.body.y + 16, 'bullet');
+        var bullet = bullets.create(player.body.x + 16, player.body.y + 16, 'mgunBullet');
         game.physics.enable(bullet, Phaser.Physics.ARCADE);
         bullet.body.setSize(8, 8, 0, 0);
         bullet.anchor.setTo(.5, .5)
@@ -370,7 +376,7 @@ function shoot()
     
     else if(weaponType = 3)//Grenade//
     {
-        var bullet = bullets.create(player.body.x + 16, player.body.y + 16, 'bullet');
+        var bullet = bullets.create(player.body.x + 16, player.body.y + 16, 'nade');
         game.physics.enable(bullet, Phaser.Physics.ARCADE);
         bullet.body.setSize(8, 8, 0, 0);
         bullet.anchor.setTo(.5, .5);
@@ -463,26 +469,6 @@ function explosionHit(explosion, enemy)
 {
     hitSFX.play();
     enemy.kill();
-}
-        
-function level1Init()
-{
-    var levelEnemies = game.add.group;
-    enemies = levelEnemies;
-    enemy1 = levelEnemies.create(576, 320, 'turretRight');
-    game.physics.enable(enemy1, Phaser.Physics.ARCADE);
-    enemy1.body.allowGravity = false;
-    enemy1.name = "Sentry";
-    
-    enemy2 = levelEnemies.create(352, 320, 'turretGround');
-    game.physics.enable(enemy2, Phaser.Physics.ARCADE);
-    enemy2.body.allowGravity = false;
-    enemy2.name = "Sentry";
-    
-    enemy3 = levelEnemies.create(32, 512, 'turretLeft');
-    game.physics.enable(enemy3, Phaser.Physics.ARCADE);
-    enemy3.body.allowGravity = false;
-    enemy3.name = "Sentry";
 }
         
 function render() {}
