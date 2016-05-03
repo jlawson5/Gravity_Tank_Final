@@ -8,9 +8,9 @@
 
 function preload() {
 
-    game.load.image('base', 'assets/tank.png');//tank base//
-    game.load.image('cannon', 'assets/cannon.png');//tank cannon//
-    game.load.image('bullet', 'assets/bullet.png');//bullet sprite//
+    game.load.image('base', 'assets/PNG/tank.png');//tank base//
+    game.load.image('cannon', 'assets/PNG/cannon.png');//tank cannon//
+    game.load.image('bullet', 'assets/PNG/bullet.png');//bullet sprite//
     //game.load.tilemap('Tilemap', 'assets/Tile Layer 1.json', null, Phaser.Tilemap.TILED_JSON);
     //game.load.tilemap('level1', 'assets/JSON/level1.json', null, Phaser.Tilemap.TILED_JSON);
     //game.load.tilemap('level2', 'assets/JSON/level2.json', null, Phaser.Tilemap.TILED_JSON);
@@ -18,15 +18,15 @@ function preload() {
     //game.load.tilemap('level4', 'assets/JSON/level4.json', null, Phaser.Tilemap.TILED_JSON);
     //game.load.tilemap('levelTest', 'assets/JSON/levelTest.json', null, Phaser.Tilemap.TILED_JSON);
     game.load.tilemap('level', 'assets/JSON/multiLevel.json', null, Phaser.Tilemap.TILED_JSON);
-    game.load.image('block', 'assets/block.png');//block used for Tilemap//
-    game.load.image('turretR', 'assets/wallTurret.png');//enemy turret on wall//
-    game.load.image('turretG', 'assets/groundTurret.png');//enemy turret on ground//
+    game.load.image('block', 'assets/PNG/block.png');//block used for Tilemap//
+    game.load.image('turretR', 'assets/PNG/wallTurret.png');//enemy turret on wall//
+    game.load.image('turretG', 'assets/PNG/groundTurret.png');//enemy turret on ground//
     game.load.image('turretL', 'assets/PNG/leftWallTurret.png');
     game.load.image('turretC', 'assets/PNG/ceilingTurret.png');
     game.load.image('splosion', 'assets/PNG/splosionTest.png');//
-    game.load.audio('shot', 'assets/9_mm_gunshot-mike-koenig-123.mp3');
-    game.load.audio('hit', 'assets/Bomb 2-SoundBible.com-953367492.mp3');
-    game.load.audio('music', 'assets/Voice Over Under.mp3');
+    game.load.audio('shot', 'assets/MP3/9_mm_gunshot-mike-koenig-123.mp3');
+    game.load.audio('hit', 'assets/MP3/Bomb 2-SoundBible.com-953367492.mp3');
+    game.load.audio('music', 'assets/MP3/Voice Over Under.mp3');
     
     game.load.image('tankDown', 'assets/PNG/tankDown.png');
     game.load.image('tankUp', 'assets/PNG/tankUp.png');
@@ -50,7 +50,7 @@ function preload() {
     game.load.image('mineL', 'assets/PNG/leftWallMine.png');
     game.load.image('mineR', 'assets/PNG/rightWallMine.png');
     game.load.image('mineC', 'assets/PNG/ceilingMine.png');
-    game.load.image('gmineG', 'assets/PNG/gravityMine.png');
+    game.load.image('gmineG', 'assets/PNG/grounhdGravityMine.png');
     game.load.image('gmineC', 'assets/PNG/ceilingGravityMine.png');
     game.load.image('gmineL', 'assets/PNG/leftGravityMine.png');
     game.load.image('gmineR', 'assets/PNG/rightGravityMine.png');
