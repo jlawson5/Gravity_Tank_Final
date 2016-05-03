@@ -751,7 +751,7 @@ function enemyInit()
     enemy39.body.allowGravity = false;
     enemy39.name = "sDrone";
 
-    var enemy40 = powerups.create(88 * t, 4 * t, 'health');
+    var enemy40 = powerups.create(89 * t, 6 * t, 'health');
     game.physics.enable(enemy40, Phaser.Physics.ARCADE);
     enemy40.body.allowGravity = false;
     enemy40.name = "health";
