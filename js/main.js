@@ -48,6 +48,7 @@ function preload() {
     game.load.image('gmineC', 'assets/PNG/ceilingGravityMine.png');
     game.load.image('gmineL', 'assets/PNG/leftGravityMine.png');
     game.load.image('gmineR', 'assets/PNG/rightGravityMine.png');
+    game.load.image('health', 'assets/PNG/powerupHealth.png');
     game.load.image('howToPlay', 'assets/PNG/Howtoplay.png');
     game.load.image('mainMenu', 'assets/PNG/mainMenu.png');
     game.load.image('gameOver', 'assets/PNG/gameOver.png');
@@ -84,6 +85,7 @@ var enemyTimer = 0;//timer for enemy attacks//
 var enemyBullets;
 var enemy17;//GTank, must be global due to behaviour//
 var mines;
+var powerups;
 var gcannon;
 var playerHealth = 50;
 var shootSFX;
@@ -144,6 +146,7 @@ function create() {
     enemyBullets = game.add.group();
     enemies = game.add.group();
     mines = game.add.group();
+    powerups = game.add.group();
     playerBombs = game.add.group();
     
     menu = game.add.sprite(0, 0, 'mainMenu');
@@ -337,7 +340,9 @@ function update() {
     game.physics.arcade.overlap(bullets, enemies, enemyHit, null, this);
     game.physics.arcade.overlap(playerBombs, enemies, explosionHit, null, this);
     game.physics.arcade.overlap(player, mines, mineHandler, null, this);
+    game.physics.arcade.overlap(player, powerups, powerupHandler, null, this);
     game.physics.arcade.overlap(player, exit, winGame, null, this);
+    game.physics.arcade.overlap(player, exit2, winGame, null, this);
 }
         
 function shoot()
@@ -518,6 +523,14 @@ function mineHandler(player, mine)
     {
         playerHealth -= 10;
         mine.kill();
+    }
+}
+
+function powerupHandler(player, powerup)
+{
+    if(powerup.name = 'health')
+    {
+	player.health += 10;
     }
 }
 
@@ -731,8 +744,13 @@ function enemyInit()
     
     var enemy39 = enemies.create(93 * t, 16 * t, 'sDrone');
     game.physics.enable(enemy39, Phaser.Physics.ARCADE);
-    enemy37.body.allowGravity = false;
-    enemy37.name = "sDrone";
+    enemy39.body.allowGravity = false;
+    enemy39.name = "sDrone";
+
+    var enemy40 = powerups.create(90 * t, 3 * t, 'health');
+    game.physics.enable(enemy40, Phaser.Physics.ARCADE);
+    enemy40.body.allowGravity = false;
+    enemy40.name = "health";
 }
         
 function healthInit(enemy)
