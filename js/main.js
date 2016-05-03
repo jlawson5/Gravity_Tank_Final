@@ -48,7 +48,7 @@ function preload() {
     game.load.image('gmineC', 'assets/PNG/ceilingGravityMine.png');
     game.load.image('gmineL', 'assets/PNG/leftGravityMine.png');
     game.load.image('gmineR', 'assets/PNG/rightGravityMine.png');
-    game.load.image('howToPlay', 'assets/PNG/howToPlay.png');
+    game.load.image('howToPlay', 'assets/PNG/Howtoplay.png');
     game.load.image('mainMenu', 'assets/PNG/mainMenu.png');
     game.load.image('gameOver', 'assets/PNG/gameOver.png');
     game.load.image('exit', 'assets/PNG/exit.png');
