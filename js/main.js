@@ -135,6 +135,10 @@ function create() {
     exit = game.add.sprite(99 * t, 14 * t, 'exit');
     game.physics.enable(exit, Phaser.Physics.ARCADE);
     exit.body.setSize(32, 32, 0, 0);
+
+    exit2 = game.add.sprite(99 * t, 13 * t, 'exit');
+    game.physics.enable(exit2, Phaser.Physics.ARCADE);
+    exit.body.setSize(32, 32, 0, 0);
     
     bullets = game.add.group();
     enemyBullets = game.add.group();
