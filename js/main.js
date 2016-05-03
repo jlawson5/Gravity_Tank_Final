@@ -532,8 +532,10 @@ function powerupHandler(player, powerup)
 {
     if(powerup.name = 'health')
     {
-	player.health += 10;
+	playerHealth += 10;
     }
+
+    powerup.kill();
 }
 
 //Initializes enemy spawns//
