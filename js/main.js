@@ -85,7 +85,11 @@ var enemyTimer = 0;//timer for enemy attacks//
 var enemyBullets;
 var enemy17;//GTank, must be global due to behaviour//
 var mines;
+<<<<<<< HEAD
 var powerups;
+=======
+var gmines;
+>>>>>>> 26ef2de1d9aa55edf648377e58d6aad756263612
 var gcannon;
 var playerHealth = 50;
 var shootSFX;
@@ -146,7 +150,11 @@ function create() {
     enemyBullets = game.add.group();
     enemies = game.add.group();
     mines = game.add.group();
+<<<<<<< HEAD
     powerups = game.add.group();
+=======
+    gmines = game.add.group();
+>>>>>>> 26ef2de1d9aa55edf648377e58d6aad756263612
     playerBombs = game.add.group();
     
     menu = game.add.sprite(0, 0, 'mainMenu');
@@ -340,7 +348,11 @@ function update() {
     game.physics.arcade.overlap(bullets, enemies, enemyHit, null, this);
     game.physics.arcade.overlap(playerBombs, enemies, explosionHit, null, this);
     game.physics.arcade.overlap(player, mines, mineHandler, null, this);
+<<<<<<< HEAD
     game.physics.arcade.overlap(player, powerups, powerupHandler, null, this);
+=======
+    game.physics.arcade.overlap(player, gmines, gmineHandler, null, this);
+>>>>>>> 26ef2de1d9aa55edf648377e58d6aad756263612
     game.physics.arcade.overlap(player, exit, winGame, null, this);
     game.physics.arcade.overlap(player, exit2, winGame, null, this);
 }
@@ -509,21 +521,20 @@ function explosionHit(explosion, enemy)
 }
         
 function mineHandler(player, mine)
+{    
+    playerHealth -= 10;
+    hitSFX.play();
+    mine.kill();
+}
+        
+function gmineHandler(player, mine)
 {
-    if(mine.name = 'gmine')
-    {
-        player.body.gravity.x = 0;
-        player.body.gravity.y = 400;
-        g_dir == 'down';
-        mine.kill();
-        return;
-    }
-    
-    else if(mine.name = 'mine')
-    {
-        playerHealth -= 10;
-        mine.kill();
-    }
+    player.body.gravity.x = 0;
+    player.body.gravity.y = 400;
+    g_dir == 'down';
+    onGround = false;
+    hitSFX.play();
+    mine.kill();
 }
 
 function powerupHandler(player, powerup)
@@ -657,12 +668,12 @@ function enemyInit()
     enemy21.body.allowGravity = false;
     enemy21.name = "mine";
     
-    var enemy22 = mines.create(69 * t, 1 * t, 'gmineC');
+    var enemy22 = gmines.create(69 * t, 1 * t, 'gmineC');
     game.physics.enable(enemy22, Phaser.Physics.ARCADE);
     enemy22.body.allowGravity = false;
     enemy22.name = "gmine";
     
-    var enemy23 = mines.create(74 * t, 5 * t, 'gmineC');
+    var enemy23 = gmines.create(74 * t, 5 * t, 'gmineC');
     game.physics.enable(enemy23, Phaser.Physics.ARCADE);
     enemy23.body.allowGravity = false;
     enemy23.name = "gmine";
