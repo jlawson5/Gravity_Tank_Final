@@ -11,12 +11,6 @@ function preload() {
     game.load.image('base', 'assets/PNG/tank.png');//tank base//
     game.load.image('cannon', 'assets/PNG/cannon.png');//tank cannon//
     game.load.image('bullet', 'assets/PNG/bullet.png');//bullet sprite//
-    //game.load.tilemap('Tilemap', 'assets/Tile Layer 1.json', null, Phaser.Tilemap.TILED_JSON);
-    //game.load.tilemap('level1', 'assets/JSON/level1.json', null, Phaser.Tilemap.TILED_JSON);
-    //game.load.tilemap('level2', 'assets/JSON/level2.json', null, Phaser.Tilemap.TILED_JSON);
-    //game.load.tilemap('level3', 'assets/JSON/level3.json', null, Phaser.Tilemap.TILED_JSON);
-    //game.load.tilemap('level4', 'assets/JSON/level4.json', null, Phaser.Tilemap.TILED_JSON);
-    //game.load.tilemap('levelTest', 'assets/JSON/levelTest.json', null, Phaser.Tilemap.TILED_JSON);
     game.load.tilemap('level', 'assets/JSON/multiLevel.json', null, Phaser.Tilemap.TILED_JSON);
     game.load.image('block', 'assets/PNG/block.png');//block used for Tilemap//
     game.load.image('turretR', 'assets/PNG/wallTurret.png');//enemy turret on wall//
@@ -50,15 +44,21 @@ function preload() {
     game.load.image('mineL', 'assets/PNG/leftWallMine.png');
     game.load.image('mineR', 'assets/PNG/rightWallMine.png');
     game.load.image('mineC', 'assets/PNG/ceilingMine.png');
-    game.load.image('gmineG', 'assets/PNG/grounhdGravityMine.png');
+    game.load.image('gmineG', 'assets/PNG/groundGravityMine.png');
     game.load.image('gmineC', 'assets/PNG/ceilingGravityMine.png');
     game.load.image('gmineL', 'assets/PNG/leftGravityMine.png');
     game.load.image('gmineR', 'assets/PNG/rightGravityMine.png');
+    game.load.image('howToPlay', 'assets/PNG/howToPlay.png');
+    game.load.image('mainMenu', 'assets/PNG/mainMenu.png');
+    game.load.image('gameOver', 'assets/PNG/gameOver.png');
+    game.load.image('exit', 'assets/PNG/exit.png');
+    game.load.image('win', 'assets/PNG/win.png');
 }
 
 var player;
 var cannon;
-var facing = 'left';
+var exit;
+var win;
 var cursors;
 var bg;
 var g_dir = 'down';
@@ -75,7 +75,9 @@ var bullets;
 var bulletTimer = 0;
 var startKey;
 var isRunning = false;
-var stateText;
+var menu;
+var howToPlay;
+var gameOver;
 var healthText;
 var enemies;
 var enemyTimer = 0;//timer for enemy attacks//
@@ -95,6 +97,7 @@ var currentLevel;
 var weaponSwitch;
 var weaponText;
 var weaponCD = 200;
+var menuTimer = 1000;
 var switchWeapon = function(){weaponType += 1;
                               if(weaponType > 3)
                                  weaponType = 0;};
@@ -129,13 +132,17 @@ function create() {
     cannon.body.setSize(32, 32, 0, 0);
     cannon.anchor.setTo(.5, .5);
     
+    exit = game.add.sprite(99 * t, 14 * t, 'exit');
+    game.physics.enable(exit, Phaser.Physics.ARCADE);
+    exit.body.setSize(32, 32, 0, 0);
+    
     bullets = game.add.group();
     enemyBullets = game.add.group();
     enemies = game.add.group();
     mines = game.add.group();
     playerBombs = game.add.group();
     
-    
+    menu = game.add.sprite(0, 0, 'mainMenu');
     
     shootSFX = game.add.audio('shot');
     hitSFX = game.add.audio('hit');
@@ -143,8 +150,6 @@ function create() {
     music.loop = true;
     music.play();
     
-    stateText = game.add.text(200, 200, "Press Enter to play!", {font: '34px Arial', fill: '#000'});
-    stateText.fixedToCamera = true;
     healthText = game.add.text(32, 32, "Health: " + playerHealth, {font: '34px Arial', fill: '#000'});
     healthText.fixedToCamera = true;
     weaponText = game.add.text(220, 32, "Weapon: Normal", {font: '34px Arial', fill: '#000'});
@@ -166,6 +171,9 @@ function update() {
     
     cannon.body.x = player.body.x;
     cannon.body.y = player.body.y;
+    
+    if(!music.isPlaying)
+        music.play();
     
     healthText.text = "Health: " + playerHealth;
     
@@ -200,7 +208,6 @@ function update() {
     if(isRunning && player.alive)
     {
         game.physics.arcade.collide(enemy17, layer);
-        //game.physics.arcade.collide(enemy17, player);
         if(!enemy17.alive)
             gcannon.kill();
         if(enemy17.inCamera)
@@ -292,11 +299,10 @@ function update() {
         isRunning = false;
         player.kill();
         cannon.kill();
-        stateText.text = "Game Over! Enter to restart.";
-        stateText.visible = true;
+        gameOver = game.add.sprite(0, 0, 'gameOver');
     }
     
-    if(startKey.isDown)//start game//
+    if(startKey.isDown && howToPlay == null && menu.visible)//start game//
     {
         if(!isRunning)
         {
@@ -306,16 +312,20 @@ function update() {
             cannon.reset(32, 96);
             enemyInit();
             enemies.forEach(healthInit);
-            
-            //if(currentLevel == 0)
-            //{
-            //    level1Init();
-            //    currentLevel = 1;
-            //}
         }
-        isRunning = true;
-        stateText.visible = false;
+        menu.visible = false;
+        howToPlay = game.add.sprite(0, 0, 'howToPlay');
+        menuTimer = game.time.now + 1000;
     }
+    
+    if(startKey.isDown && howToPlay != null && game.time.now > menuTimer)
+    {
+        howToPlay.kill()
+        isRunning = true;
+    }
+    
+    if(playerHealth < 0)
+        playerHealth = 0;
     
     game.physics.arcade.overlap(bullets, layer, wallCollision, null, this);
     game.physics.arcade.overlap(enemyBullets, layer, wallCollision, null, this);
@@ -323,7 +333,7 @@ function update() {
     game.physics.arcade.overlap(bullets, enemies, enemyHit, null, this);
     game.physics.arcade.overlap(playerBombs, enemies, explosionHit, null, this);
     game.physics.arcade.overlap(player, mines, mineHandler, null, this);
-    //game.physics.arcade.overlap(player, enemy17, fixGTank, null, this);
+    game.physics.arcade.overlap(player, exit, winGame, null, this);
 }
         
 function shoot()
@@ -752,6 +762,12 @@ function fixGTank(player, gtank)
     
     else if(gtank.body.gravity.y < 0)
         gtank.body.velocity.y = 100;
+}
+        
+function winGame(player, exit)
+{
+    win = game.add.sprite(0, 0, 'win');
+    isRunning = false;
 }
         
 function render() {}
