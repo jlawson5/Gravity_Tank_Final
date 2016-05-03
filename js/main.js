@@ -11,17 +11,19 @@ function preload() {
     game.load.image('base', 'assets/tank.png');//tank base//
     game.load.image('cannon', 'assets/cannon.png');//tank cannon//
     game.load.image('bullet', 'assets/bullet.png');//bullet sprite//
-    game.load.tilemap('Tilemap', 'assets/Tile Layer 1.json', null, Phaser.Tilemap.TILED_JSON);
-    game.load.tilemap('level1', 'assets/JSON/level1.json', null, Phaser.Tilemap.TILED_JSON);
-    game.load.tilemap('level2', 'assets/JSON/level2.json', null, Phaser.Tilemap.TILED_JSON);
-    game.load.tilemap('level3', 'assets/JSON/level3.json', null, Phaser.Tilemap.TILED_JSON);
-    game.load.tilemap('level4', 'assets/JSON/level4.json', null, Phaser.Tilemap.TILED_JSON);
+    //game.load.tilemap('Tilemap', 'assets/Tile Layer 1.json', null, Phaser.Tilemap.TILED_JSON);
+    //game.load.tilemap('level1', 'assets/JSON/level1.json', null, Phaser.Tilemap.TILED_JSON);
+    //game.load.tilemap('level2', 'assets/JSON/level2.json', null, Phaser.Tilemap.TILED_JSON);
+    //game.load.tilemap('level3', 'assets/JSON/level3.json', null, Phaser.Tilemap.TILED_JSON);
+    //game.load.tilemap('level4', 'assets/JSON/level4.json', null, Phaser.Tilemap.TILED_JSON);
+    //game.load.tilemap('levelTest', 'assets/JSON/levelTest.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.tilemap('level', 'assets/JSON/multiLevel.json', null, Phaser.Tilemap.TILED_JSON);
     game.load.image('block', 'assets/block.png');//block used for Tilemap//
-    game.load.image('turretRight', 'assets/wallTurret.png');//enemy turret on wall//
-    game.load.image('turretGround', 'assets/groundTurret.png');//enemy turret on ground//
-    game.load.image('turretLeft', 'assets/PNG/leftWallTurret.png');
-    game.load.image('turretCeiling', 'assets/PNG/ceilingTurret.png');
-    game.load.image('splosion', 'assets/splosionTest.png');//
+    game.load.image('turretR', 'assets/wallTurret.png');//enemy turret on wall//
+    game.load.image('turretG', 'assets/groundTurret.png');//enemy turret on ground//
+    game.load.image('turretL', 'assets/PNG/leftWallTurret.png');
+    game.load.image('turretC', 'assets/PNG/ceilingTurret.png');
+    game.load.image('splosion', 'assets/PNG/splosionTest.png');//
     game.load.audio('shot', 'assets/9_mm_gunshot-mike-koenig-123.mp3');
     game.load.audio('hit', 'assets/Bomb 2-SoundBible.com-953367492.mp3');
     game.load.audio('music', 'assets/Voice Over Under.mp3');
@@ -35,11 +37,23 @@ function preload() {
     game.load.image('launcher', 'assets/PNG/grenadeLauncher.png');
     
     game.load.image('drone', 'assets/PNG/drone.png');
-    game.load.image('shieldDrone', 'assets/PNG/sheildedDrone.png');
-    game.load.image('sheildTurretR', 'assets/PNG/shieldedWallTurret.png');
-    game.load.image('sheildTurretL', 'assets/PNG/shieldedLeftWallTurret.png');
-    game.load.image('sheildTurretG', 'assets/PNG/shieldedGroundTurret.png');
-    game.load.image('sheildTurretC', 'assets/PNG/shieldedCeilingTurret.png');
+    game.load.image('sDrone', 'assets/PNG/sheildedDrone.png');
+    game.load.image('sTurretR', 'assets/PNG/shieldedWallTurret.png');
+    game.load.image('sTurretL', 'assets/PNG/shieldedLeftWallTurret.png');
+    game.load.image('sTurretG', 'assets/PNG/shieldedGroundTurret.png');
+    game.load.image('sTurretC', 'assets/PNG/shieldedCeilingTurret.png');
+    game.load.image('mgunBullet', 'assets/PNG/machineGunBullet.png');
+    game.load.image('nade', 'assets/PNG/grenade.png');
+    game.load.image('GTank', 'assets/PNG/basicTank.png');
+    game.load.image('GCannon', 'assets/PNG/basicCannon.png');
+    game.load.image('mineG', 'assets/PNG/groundMine.png');
+    game.load.image('mineL', 'assets/PNG/leftWallMine.png');
+    game.load.image('mineR', 'assets/PNG/rightWallMine.png');
+    game.load.image('mineC', 'assets/PNG/ceilingMine.png');
+    game.load.image('gmineG', 'assets/PNG/gravityMine.png');
+    game.load.image('gmineC', 'assets/PNG/ceilingGravityMine.png');
+    game.load.image('gmineL', 'assets/PNG/leftGravityMine.png');
+    game.load.image('gmineR', 'assets/PNG/rightGravityMine.png');
 }
 
 var player;
@@ -64,11 +78,11 @@ var isRunning = false;
 var stateText;
 var healthText;
 var enemies;
-var enemy1;//wall turret//
-var enemy2;//ground turret//
-var enemy3;//ground turret//
 var enemyTimer = 0;//timer for enemy attacks//
 var enemyBullets;
+var enemy17;//GTank, must be global due to behaviour//
+var mines;
+var gcannon;
 var playerHealth = 50;
 var shootSFX;
 var hitSFX;
@@ -85,18 +99,21 @@ var switchWeapon = function(){weaponType += 1;
                               if(weaponType > 3)
                                  weaponType = 0;};
 
+var t = 32;//Constant: Size of tile//
+
 function create() {
 
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
     game.stage.backgroundColor = '#555555';
     
-    map = game.add.tilemap('level1');
+    game.world.setBounds(0, 0, 3200, 640);
+    
+    map = game.add.tilemap('level');
     map.addTilesetImage('block');
     map.setCollision(1);
     
     layer = map.createLayer('Tile Layer 1');
-    layer.resizeWorld();
 
     player = game.add.sprite(32, 96, 'tankDown');
     game.physics.enable(player, Phaser.Physics.ARCADE);
@@ -115,22 +132,10 @@ function create() {
     bullets = game.add.group();
     enemyBullets = game.add.group();
     enemies = game.add.group();
+    mines = game.add.group();
     playerBombs = game.add.group();
     
-    enemy1 = enemies.create(576, 320, 'turretRight');
-    game.physics.enable(enemy1, Phaser.Physics.ARCADE);
-    enemy1.body.allowGravity = false;
-    enemy1.name = "Sentry";
     
-    enemy2 = enemies.create(352, 320, 'turretGround');
-    game.physics.enable(enemy2, Phaser.Physics.ARCADE);
-    enemy2.body.allowGravity = false;
-    enemy2.name = "Sentry";
-    
-    enemy3 = enemies.create(64, 512, 'turretGround');
-    game.physics.enable(enemy3, Phaser.Physics.ARCADE);
-    enemy3.body.allowGravity = false;
-    enemy3.name = "Sentry";
     
     shootSFX = game.add.audio('shot');
     hitSFX = game.add.audio('hit');
@@ -139,8 +144,11 @@ function create() {
     music.play();
     
     stateText = game.add.text(200, 200, "Press Enter to play!", {font: '34px Arial', fill: '#000'});
+    stateText.fixedToCamera = true;
     healthText = game.add.text(32, 32, "Health: " + playerHealth, {font: '34px Arial', fill: '#000'});
+    healthText.fixedToCamera = true;
     weaponText = game.add.text(220, 32, "Weapon: Normal", {font: '34px Arial', fill: '#000'});
+    weaponText.fixedToCamera = true;
 
     cursors = game.input.keyboard.createCursorKeys();
     weaponSwitch = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
@@ -149,6 +157,7 @@ function create() {
     leftGrav = game.input.keyboard.addKey(Phaser.Keyboard.A);
     rightGrav = game.input.keyboard.addKey(Phaser.Keyboard.D);
     startKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+    game.camera.follow(player);
 }
 
 function update() {
@@ -190,6 +199,18 @@ function update() {
     
     if(isRunning && player.alive)
     {
+        game.physics.arcade.collide(enemy17, layer);
+        //game.physics.arcade.collide(enemy17, player);
+        if(!enemy17.alive)
+            gcannon.kill();
+        if(enemy17.inCamera)
+        {
+            enemy17.body.gravity.x = player.body.gravity.x;
+            enemy17.body.gravity.y = player.body.gravity.y;
+            gcannon.body.x = enemy17.body.x;
+            gcannon.body.y = enemy17.body.y;
+            gcannon.rotation = game.physics.arcade.angleToXY(gcannon, player.body.x, player.body.y);
+        }
         if(g_dir == 'down' || g_dir == 'up')
         {
             if(player.body.velocity.y == 0)
@@ -283,9 +304,8 @@ function update() {
             playerHealth = 50;
             player.reset(32, 96);
             cannon.reset(32, 96);
-            enemy1.reset(576, 320);
-            enemy2.reset(352, 320);
-            enemy3.reset(32, 512);
+            enemyInit();
+            enemies.forEach(healthInit);
             
             //if(currentLevel == 0)
             //{
@@ -302,6 +322,8 @@ function update() {
     game.physics.arcade.overlap(player, enemyBullets, playerHit, null, this);
     game.physics.arcade.overlap(bullets, enemies, enemyHit, null, this);
     game.physics.arcade.overlap(playerBombs, enemies, explosionHit, null, this);
+    game.physics.arcade.overlap(player, mines, mineHandler, null, this);
+    //game.physics.arcade.overlap(player, enemy17, fixGTank, null, this);
 }
         
 function shoot()
@@ -353,13 +375,13 @@ function shoot()
     
     else if(weaponType == 2)//Machine Gun//
     {
-        var bullet = bullets.create(player.body.x + 16, player.body.y + 16, 'bullet');
+        var bullet = bullets.create(player.body.x + 16, player.body.y + 16, 'mgunBullet');
         game.physics.enable(bullet, Phaser.Physics.ARCADE);
         bullet.body.setSize(8, 8, 0, 0);
         bullet.anchor.setTo(.5, .5)
         bullet.rotation = cannon.rotation;
         bullet.body.allowGravity = false;
-        bullet.name = 'rapid';
+        bullet.name = 'mgun';
         var spread = Math.random() * 0.3;
         var negative = Math.random() * 2;
         if(negative >= 1)
@@ -370,13 +392,13 @@ function shoot()
     
     else if(weaponType = 3)//Grenade//
     {
-        var bullet = bullets.create(player.body.x + 16, player.body.y + 16, 'bullet');
+        var bullet = bullets.create(player.body.x + 16, player.body.y + 16, 'nade');
         game.physics.enable(bullet, Phaser.Physics.ARCADE);
         bullet.body.setSize(8, 8, 0, 0);
         bullet.anchor.setTo(.5, .5);
         bullet.rotation = cannon.rotation;
         bullet.body.gravity.y = 350;
-        bullet.name = "grenade";
+        bullet.name = 'grenade';
         game.physics.arcade.velocityFromRotation(cannon.rotation, 275, bullet.body.velocity);
     }
     shootSFX.play();
@@ -386,13 +408,13 @@ function wallCollision(bullet, layer)
 {
     if(bullet.name == 'grenade')
     {
+        hitSFX.play();
         var explosion = playerBombs.create(bullet.body.x, bullet.body.y, 'splosion');
         explosion.lifespan = 600;
         game.physics.enable(explosion, Phaser.Physics.ARCADE);
         explosion.body.setSize(64, 64);
         explosion.anchor.setTo(.5, .5);
         explosion.body.allowGravity = false;
-        hitSFX.play();
         bullet.kill();
     }
 
@@ -402,7 +424,7 @@ function wallCollision(bullet, layer)
         
 function enemyShoot(enemy)
 {
-    if(!enemy.alive)
+    if(!enemy.alive || !enemy.inCamera)
         return;
     
     var los = new Phaser.Line();
@@ -419,8 +441,6 @@ function enemyShoot(enemy)
     
     var bullet = enemyBullets.create(enemy.body.x + 16, enemy.body.y + 16, 'bullet');
     game.physics.enable(bullet, Phaser.Physics.ARCADE);
-    if(enemy.name == "Sentry")
-        bullet.name = "bullet1";
     bullet.body.setSize(8, 8, 0, 0);
     bullet.anchor.setTo(.5, .5);
     bullet.body.allowGravity = false;
@@ -433,17 +453,7 @@ function playerHit(player, bullet)
 {
     hitSFX.play();
     bullet.kill();
-    if(playerHealth > 0)
-    {
-        if(bullet.name == 'bullet1')
-            playerHealth -= damageArr[0];
-        
-        else if(bullet.name == 'bullet2')
-            playerHealth -= damageArr[1];
-        
-        else if(bullet.name == 'bullet3')
-            playerHealth -= damageArr[2];
-    }
+    playerHealth -= 5;
 }
         
 function enemyHit(bullet, enemy)
@@ -456,33 +466,292 @@ function enemyHit(bullet, enemy)
     
     hitSFX.play();
     bullet.kill();
-    enemy.kill();
+    
+    if(bullet.name == 'normal')
+        enemy.health -= 20;
+    
+    else if(bullet.name == 'spread')
+        enemy.health -=30;
+    
+    else if(bullet.name == 'mgun')
+        enemy.health -=10;
+    
+    if(enemy.health <= 0)
+        enemy.kill();
 }
         
 function explosionHit(explosion, enemy)
 {
     hitSFX.play();
-    enemy.kill();
+    enemy.health -= 2;
+    
+    if(enemy.health <= 0)
+        enemy.kill();
 }
         
-function level1Init()
+function mineHandler(player, mine)
 {
-    var levelEnemies = game.add.group;
-    enemies = levelEnemies;
-    enemy1 = levelEnemies.create(576, 320, 'turretRight');
+    if(mine.name = 'gmine')
+    {
+        player.body.gravity.x = 0;
+        player.body.gravity.y = 400;
+        g_dir == 'down';
+        mine.kill();
+        return;
+    }
+    
+    else if(mine.name = 'mine')
+    {
+        playerHealth -= 10;
+        mine.kill();
+    }
+}
+
+//Initializes enemy spawns//
+function enemyInit()
+{
+    //////////////////////////////////
+    //Room #1                       //
+    //////////////////////////////////
+    var enemy1 = enemies.create(18 * t, 10 * t, 'turretR');
     game.physics.enable(enemy1, Phaser.Physics.ARCADE);
     enemy1.body.allowGravity = false;
     enemy1.name = "Sentry";
     
-    enemy2 = levelEnemies.create(352, 320, 'turretGround');
+    var enemy2 = enemies.create(11 * t, 10 * t, 'turretG');
     game.physics.enable(enemy2, Phaser.Physics.ARCADE);
     enemy2.body.allowGravity = false;
     enemy2.name = "Sentry";
     
-    enemy3 = levelEnemies.create(32, 512, 'turretLeft');
+    var enemy3 = enemies.create(1 * t, 16 * t, 'turretL');
     game.physics.enable(enemy3, Phaser.Physics.ARCADE);
     enemy3.body.allowGravity = false;
     enemy3.name = "Sentry";
+    
+    //////////////////////////////////
+    //Room #2                       //
+    //////////////////////////////////
+    var enemy4 = enemies.create(30 * t, 5 * t, 'turretC');
+    game.physics.enable(enemy4, Phaser.Physics.ARCADE);
+    enemy4.body.allowGravity = false;
+    enemy4.name = "Sentry";
+    
+    var enemy5 = enemies.create(34 * t, 7 * t, 'turretG');
+    game.physics.enable(enemy5, Phaser.Physics.ARCADE);
+    enemy5.body.allowGravity = false;
+    enemy5.name = "Sentry";
+    
+    var enemy6 = enemies.create(36 * t, 8 * t, 'drone');
+    game.physics.enable(enemy6, Phaser.Physics.ARCADE);
+    enemy6.body.allowGravity = false;
+    enemy6.name = "Drone";
+    
+    var enemy7 = enemies.create(36 * t, 9 * t, 'drone');
+    game.physics.enable(enemy7, Phaser.Physics.ARCADE);
+    enemy7.body.allowGravity = false;
+    enemy7.name = "Drone";
+    
+    var enemy8 = enemies.create(37 * t, 8 * t, 'drone');
+    game.physics.enable(enemy8, Phaser.Physics.ARCADE);
+    enemy8.body.allowGravity = false;
+    enemy8.name = "Drone";
+    
+    var enemy9 = enemies.create(37 * t, 9 * t, 'sDrone');
+    game.physics.enable(enemy9, Phaser.Physics.ARCADE);
+    enemy9.body.allowGravity = false;
+    enemy9.name = "sDrone";
+    
+    var enemy10 = enemies.create(36 * t, 12 * t, 'turretC');
+    game.physics.enable(enemy10, Phaser.Physics.ARCADE);
+    enemy10.body.allowGravity = false;
+    enemy10.name = "Sentry";
+    
+    var enemy11 = enemies.create(37 * t, 12 * t, 'turretC');
+    game.physics.enable(enemy11, Phaser.Physics.ARCADE);
+    enemy11.body.allowGravity = false;
+    enemy11.name = "Sentry";
+    
+    //////////////////////////////////
+    //Room #3                       //
+    //////////////////////////////////
+    var enemy12 = enemies.create(46 * t, 9 * t, 'drone');
+    game.physics.enable(enemy12, Phaser.Physics.ARCADE);
+    enemy12.body.allowGravity = false;
+    enemy12.name = "Drone";
+    
+    var enemy13 = enemies.create(50 * t, 5 * t, 'drone');
+    game.physics.enable(enemy13, Phaser.Physics.ARCADE);
+    enemy13.body.allowGravity = false;
+    enemy13.name = "Drone";
+    
+    var enemy14 = enemies.create(54 * t, 9 * t, 'drone');
+    game.physics.enable(enemy14, Phaser.Physics.ARCADE);
+    enemy14.body.allowGravity = false;
+    enemy14.name = "Drone";
+    
+    var enemy15 = enemies.create(50 * t, 13 * t, 'drone');
+    game.physics.enable(enemy15, Phaser.Physics.ARCADE);
+    enemy15.body.allowGravity = false;
+    enemy15.name = "Drone";
+    
+    var enemy16 = enemies.create(50 * t, 9 * t, 'sDrone');
+    game.physics.enable(enemy16, Phaser.Physics.ARCADE);
+    enemy16.body.allowGravity = false;
+    enemy16.name = "sDrone";
+    
+    enemy17 = enemies.create(56 * t, 1 * t, 'GTank');
+    game.physics.enable(enemy17, Phaser.Physics.ARCADE);
+    enemy17.name = "GTank";
+    gcannon = game.add.sprite(56 * t, 1 * t, 'GCannon');
+    game.physics.enable(gcannon, Phaser.Physics.ARCADE);
+    gcannon.body.setSize(32, 32, 0, 0);
+    gcannon.anchor.setTo(.5, .5);
+    
+    //////////////////////////////////
+    //Room #4                       //
+    //////////////////////////////////
+    var enemy18 = mines.create(69 * t, 6 * t, 'mineR');
+    game.physics.enable(enemy18, Phaser.Physics.ARCADE);
+    enemy18.body.allowGravity = false;
+    enemy18.name = "mine";
+    
+    var enemy19 = mines.create(69 * t, 7 * t, 'mineG');
+    game.physics.enable(enemy19, Phaser.Physics.ARCADE);
+    enemy19.body.allowGravity = false;
+    enemy19.name = "mine";
+    
+    var enemy20 = mines.create(74 * t, 13 * t, 'mineG');
+    game.physics.enable(enemy20, Phaser.Physics.ARCADE);
+    enemy20.body.allowGravity = false;
+    enemy20.name = "mine";
+    
+    var enemy21 = mines.create(71 * t, 16 * t, 'mineG');
+    game.physics.enable(enemy21, Phaser.Physics.ARCADE);
+    enemy21.body.allowGravity = false;
+    enemy21.name = "mine";
+    
+    var enemy22 = mines.create(69 * t, 1 * t, 'gmineC');
+    game.physics.enable(enemy22, Phaser.Physics.ARCADE);
+    enemy22.body.allowGravity = false;
+    enemy22.name = "gmine";
+    
+    var enemy23 = mines.create(74 * t, 5 * t, 'gmineC');
+    game.physics.enable(enemy23, Phaser.Physics.ARCADE);
+    enemy23.body.allowGravity = false;
+    enemy23.name = "gmine";
+    
+    var enemy24 = enemies.create(62 * t, 13 * t, 'turretC');
+    game.physics.enable(enemy24, Phaser.Physics.ARCADE);
+    enemy24.body.allowGravity = false;
+    enemy24.name = "Sentry";
+    
+    var enemy25 = enemies.create(63 * t, 13 * t, 'turretC');
+    game.physics.enable(enemy25, Phaser.Physics.ARCADE);
+    enemy25.body.allowGravity = false;
+    enemy25.name = "Sentry";
+    
+    var enemy26 = enemies.create(75 * t, 13 * t, 'turretR');
+    game.physics.enable(enemy26, Phaser.Physics.ARCADE);
+    enemy26.body.allowGravity = false;
+    enemy26.name = "Sentry";
+    
+    var enemy27 = enemies.create(90 * t, 2 * t, 'turretL');
+    game.physics.enable(enemy27, Phaser.Physics.ARCADE);
+    enemy27.body.allowGravity = false;
+    enemy27.name = "Sentry";
+    
+    var enemy28 = enemies.create(96 * t, 3 * t, 'turretG');
+    game.physics.enable(enemy28, Phaser.Physics.ARCADE);
+    enemy28.body.allowGravity = false;
+    enemy28.name = "Sentry";
+    
+    var enemy29 = enemies.create(95 * t, 4 * t, 'turretR');
+    game.physics.enable(enemy29, Phaser.Physics.ARCADE);
+    enemy29.body.allowGravity = false;
+    enemy29.name = "Sentry";
+    
+    var enemy30 = enemies.create(96 * t, 5 * t, 'turretC');
+    game.physics.enable(enemy30, Phaser.Physics.ARCADE);
+    enemy30.body.allowGravity = false;
+    enemy30.name = "Sentry";
+    
+    var enemy31 = enemies.create(97 * t, 4 * t, 'turretL');
+    game.physics.enable(enemy31, Phaser.Physics.ARCADE);
+    enemy31.body.allowGravity = false;
+    enemy31.name = "Sentry";
+    
+    var enemy32 = enemies.create(98 * t, 8 * t, 'turretR');
+    game.physics.enable(enemy32, Phaser.Physics.ARCADE);
+    enemy32.body.allowGravity = false;
+    enemy32.name = "Sentry";
+    
+    var enemy33 = enemies.create(84 * t, 9 * t, 'sDrone');
+    game.physics.enable(enemy33, Phaser.Physics.ARCADE);
+    enemy33.body.allowGravity = false;
+    enemy33.name = "sDrone";
+    
+    var enemy34 = enemies.create(81 * t, 15 * t, 'turretL');
+    game.physics.enable(enemy34, Phaser.Physics.ARCADE);
+    enemy34.body.allowGravity = false;
+    enemy34.name = "Sentry";
+    
+    var enemy35 = enemies.create(81 * t, 16 * t, 'turretL');
+    game.physics.enable(enemy35, Phaser.Physics.ARCADE);
+    enemy35.body.allowGravity = false;
+    enemy35.name = "Sentry";
+    
+    var enemy36 = enemies.create(81 * t, 17 * t, 'turretL');
+    game.physics.enable(enemy36, Phaser.Physics.ARCADE);
+    enemy36.body.allowGravity = false;
+    enemy36.name = "Sentry";
+    
+    var enemy37 = enemies.create(92 * t, 15 * t, 'sDrone');
+    game.physics.enable(enemy37, Phaser.Physics.ARCADE);
+    enemy37.body.allowGravity = false;
+    enemy37.name = "sDrone";
+    
+    var enemy38 = enemies.create(93 * t, 14 * t, 'sDrone');
+    game.physics.enable(enemy38, Phaser.Physics.ARCADE);
+    enemy38.body.allowGravity = false;
+    enemy38.name = "sDrone";
+    
+    var enemy39 = enemies.create(93 * t, 16 * t, 'sDrone');
+    game.physics.enable(enemy39, Phaser.Physics.ARCADE);
+    enemy37.body.allowGravity = false;
+    enemy37.name = "sDrone";
+}
+        
+function healthInit(enemy)
+{
+    if(enemy.name == "Sentry")
+        enemy.health = 30;
+    
+    else if(enemy.name == "sSentry")
+        enemy.health = 60;
+    
+    else if(enemy.name == "Drone")
+        enemy.health = 20;
+    
+    else if(enemy.name == "sDrone")
+        enemy.health = 40;
+    
+    else if(enemy.name == "GTank")
+        enemy.health = 100;
+}
+        
+function fixGTank(player, gtank)
+{
+    if(gtank.body.gravity.x > 0)
+        gtank.body.velocity.x = -100;
+    
+    else if(gtank.body.gravity.x < 0)
+        gtank.body.velocity.x = 100;
+    
+    if(gtank.body.gravity.y > 0)
+        gtank.body.velocity.y = -100;
+    
+    else if(gtank.body.gravity.y < 0)
+        gtank.body.velocity.y = 100;
 }
         
 function render() {}
