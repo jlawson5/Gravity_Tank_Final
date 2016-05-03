@@ -85,11 +85,8 @@ var enemyTimer = 0;//timer for enemy attacks//
 var enemyBullets;
 var enemy17;//GTank, must be global due to behaviour//
 var mines;
-<<<<<<< HEAD
 var powerups;
-=======
 var gmines;
->>>>>>> 26ef2de1d9aa55edf648377e58d6aad756263612
 var gcannon;
 var playerHealth = 50;
 var shootSFX;
@@ -150,11 +147,8 @@ function create() {
     enemyBullets = game.add.group();
     enemies = game.add.group();
     mines = game.add.group();
-<<<<<<< HEAD
     powerups = game.add.group();
-=======
     gmines = game.add.group();
->>>>>>> 26ef2de1d9aa55edf648377e58d6aad756263612
     playerBombs = game.add.group();
     
     menu = game.add.sprite(0, 0, 'mainMenu');
@@ -348,11 +342,8 @@ function update() {
     game.physics.arcade.overlap(bullets, enemies, enemyHit, null, this);
     game.physics.arcade.overlap(playerBombs, enemies, explosionHit, null, this);
     game.physics.arcade.overlap(player, mines, mineHandler, null, this);
-<<<<<<< HEAD
     game.physics.arcade.overlap(player, powerups, powerupHandler, null, this);
-=======
     game.physics.arcade.overlap(player, gmines, gmineHandler, null, this);
->>>>>>> 26ef2de1d9aa55edf648377e58d6aad756263612
     game.physics.arcade.overlap(player, exit, winGame, null, this);
     game.physics.arcade.overlap(player, exit2, winGame, null, this);
 }
