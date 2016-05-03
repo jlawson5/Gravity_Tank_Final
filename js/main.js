@@ -491,19 +491,19 @@ function explosionHit(explosion, enemy)
         
 function mineHandler(player, mine)
 {
-    if(mine.name = 'mine')
+    if(mine.name = 'gmine')
     {
-        playerHealth -= 10;
+        player.body.gravity.x = 0;
+        player.body.gravity.y = 400;
+        g_dir == 'down';
         mine.kill();
         return;
     }
     
-    else if(mine.name = 'gmine')
+    else if(mine.name = 'mine')
     {
-        player.body.gravity.x = 0;
-        player.body.gravity.y = 400;
+        playerHealth -= 10;
         mine.kill();
-        return;
     }
 }
 
@@ -716,7 +716,7 @@ function enemyInit()
     enemy38.name = "sDrone";
     
     var enemy39 = enemies.create(93 * t, 16 * t, 'sDrone');
-    game.physics.enable(enemy37, Phaser.Physics.ARCADE);
+    game.physics.enable(enemy39, Phaser.Physics.ARCADE);
     enemy37.body.allowGravity = false;
     enemy37.name = "sDrone";
 }
